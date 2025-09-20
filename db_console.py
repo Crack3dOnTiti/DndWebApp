@@ -105,7 +105,7 @@ def setup_database():
     print("Database setup complete!")
 
 def show_players():
-    """Display all players in the database"""
+    """Display all players - just ID and name"""
     try:
         DATABASE_URL = os.getenv('DATABASE_URL')
         if not DATABASE_URL:
@@ -113,27 +113,22 @@ def show_players():
             return
         engine = create_engine(DATABASE_URL)
         with engine.connect() as connection:
-            result = connection.execute(text("SELECT id, name, title, current_hp, max_hp, current_stam, max_stam, age, gender FROM players ORDER BY id"))
+            result = connection.execute(text("SELECT id, name FROM players ORDER BY id"))
             players = result.fetchall()
             if players:
-                print("\nPLAYERS:")
-                print("-" * 80)
-                print(f"{'ID':<3} {'Name':<20} {'Title':<15} {'HP':<12} {'Stamina':<12} {'Age':<4} {'Gender':<8}")
-                print("-" * 80)
+                print("\n🎲 PLAYERS:")
+                print("-" * 30)
+                print(f"{'ID':<5} {'Name':<20}")
+                print("-" * 30)
                 for player in players:
-                    hp_display = f"{player[3]}/{player[4]}"
-                    stam_display = f"{player[5]}/{player[6]}"
-                    age_display = player[7] if player[7] else "N/A"
-                    gender_display = player[8] if player[8] else "N/A"
-                    title_display = player[2] if player[2] else "No Title"
-                    print(f"{player[0]:<3} {player[1]:<20} {title_display:<15} {hp_display:<12} {stam_display:<12} {age_display:<4} {gender_display:<8}")
+                    print(f"{player[0]:<5} {player[1]:<20}")
             else:
-                print("\nNo players found in database")
+                print("\n🎲 No players found in database")
     except Exception as e:
         print(f"Failed to retrieve players: {e}")
 
 def show_enemies():
-    """Display all enemies in the database"""
+    """Display all enemies - just ID and name"""
     try:
         DATABASE_URL = os.getenv('DATABASE_URL')
         if not DATABASE_URL:
@@ -141,27 +136,22 @@ def show_enemies():
             return
         engine = create_engine(DATABASE_URL)
         with engine.connect() as connection:
-            result = connection.execute(text("SELECT id, name, title, current_hp, max_hp, current_stam, max_stam, biology, main_style FROM enemies ORDER BY id"))
+            result = connection.execute(text("SELECT id, name FROM enemies ORDER BY id"))
             enemies = result.fetchall()
             if enemies:
-                print("\nENEMIES:")
-                print("-" * 85)
-                print(f"{'ID':<3} {'Name':<20} {'Title':<15} {'HP':<12} {'Stamina':<12} {'Biology':<10} {'Style':<15}")
-                print("-" * 85)
+                print("\n⚔️  ENEMIES:")
+                print("-" * 30)
+                print(f"{'ID':<5} {'Name':<20}")
+                print("-" * 30)
                 for enemy in enemies:
-                    hp_display = f"{enemy[3]}/{enemy[4]}"
-                    stam_display = f"{enemy[5]}/{enemy[6]}"
-                    biology_display = enemy[7] if enemy[7] else "Unknown"
-                    style_display = enemy[8] if enemy[8] else "No Style"
-                    title_display = enemy[2] if enemy[2] else "No Title"
-                    print(f"{enemy[0]:<3} {enemy[1]:<20} {title_display:<15} {hp_display:<12} {stam_display:<12} {biology_display:<10} {style_display:<15}")
+                    print(f"{enemy[0]:<5} {enemy[1]:<20}")
             else:
-                print("\nNo enemies found in database")
+                print("\n⚔️  No enemies found in database")
     except Exception as e:
         print(f"Failed to retrieve enemies: {e}")
 
 def show_npcs():
-    """Display all NPCs in the database"""
+    """Display all NPCs - just ID and name"""
     try:
         DATABASE_URL = os.getenv('DATABASE_URL')
         if not DATABASE_URL:
@@ -169,34 +159,204 @@ def show_npcs():
             return
         engine = create_engine(DATABASE_URL)
         with engine.connect() as connection:
-            result = connection.execute(text("SELECT id, name, title, current_hp, max_hp, general_feeling, starter_background, age FROM npcs ORDER BY id"))
+            result = connection.execute(text("SELECT id, name FROM npcs ORDER BY id"))
             npcs = result.fetchall()
             if npcs:
-                print("\nNPCs:")
-                print("-" * 85)
-                print(f"{'ID':<3} {'Name':<20} {'Title':<15} {'HP':<12} {'Feeling':<12} {'Background':<12} {'Age':<4}")
-                print("-" * 85)
+                print("\n👥 NPCs:")
+                print("-" * 30)
+                print(f"{'ID':<5} {'Name':<20}")
+                print("-" * 30)
                 for npc in npcs:
-                    hp_display = f"{npc[3]}/{npc[4]}"
-                    feeling_display = npc[5] if npc[5] else "Neutral"
-                    background_display = npc[6] if npc[6] else "Unknown"
-                    age_display = npc[7] if npc[7] else "N/A"
-                    title_display = npc[2] if npc[2] else "No Title"
-                    print(f"{npc[0]:<3} {npc[1]:<20} {title_display:<15} {hp_display:<12} {feeling_display:<12} {background_display:<12} {age_display:<4}")
+                    print(f"{npc[0]:<5} {npc[1]:<20}")
             else:
-                print("\nNo NPCs found in database")
+                print("\n👥 No NPCs found in database")
     except Exception as e:
         print(f"Failed to retrieve NPCs: {e}")
+
+def show_player_detail(player_id):
+    """Display detailed information for a specific player"""
+    try:
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        if not DATABASE_URL:
+            print("Error: DATABASE_URL not found")
+            return
+        engine = create_engine(DATABASE_URL)
+        with engine.connect() as connection:
+            # Get player info
+            player_result = connection.execute(text("SELECT * FROM players WHERE id = :id"), {"id": player_id})
+            player = player_result.fetchone()
+            
+            if not player:
+                print(f"Player with ID {player_id} not found")
+                return
+            
+            # Get player stats
+            stats_result = connection.execute(text("SELECT * FROM player_stats WHERE player_id = :id"), {"id": player_id})
+            stats = stats_result.fetchone()
+            
+            # Correct column mapping based on your model:
+            # 0=id, 1=current_hp, 2=max_hp, 3=current_stam, 4=max_stam, 5=name, 6=title, 7=sin, 8=virtue, 
+            # 9=general_feeling, 10=skill_name, 11=skill_description, 12=passive_name, 13=passive_description,
+            # 14=starter_background, 15=age, 16=gender, 17=temperature, 18=saturation, 19=biology, 
+            # 20=main_style, 21=ritual, 22=last_d5_roll, 23=last_d10_roll, 24=last_d20_roll, 25=last_d100_roll
+            
+            print(f"\n🎲 PLAYER DETAILS - ID: {player_id}")
+            print("=" * 60)
+            print(f"Name: {player[5]}")
+            print(f"Title: {player[6] or 'No Title'}")
+            print(f"Age: {player[15]} | Gender: {player[16]}")
+            print(f"Biology: {player[19]} | Background: {player[14] or 'Unknown'}")
+            print()
+            print("HEALTH & RESOURCES:")
+            print(f"  HP: {player[1]}/{player[2]} | Stamina: {player[3]}/{player[4]}")
+            print(f"  Temperature: {player[17] or 'Normal'} | Saturation: {player[18]}")
+            print()
+            print("CHARACTER TRAITS:")
+            print(f"  Sin: {player[7] or 'None'} | Virtue: {player[8] or 'None'}")
+            print(f"  General Feeling: {player[9]}")
+            print(f"  Main Style: {player[20] or 'None'} | Ritual: {player[21]}")
+            print()
+            print("ABILITIES:")
+            print(f"  Skill: {player[10] or 'None'}")
+            if player[11]:
+                print(f"    Description: {player[11]}")
+            print(f"  Passive: {player[12] or 'None'}")
+            if player[13]:
+                print(f"    Description: {player[13]}")
+            print()
+            print("DICE ROLLS:")
+            print(f"  Last d5: {player[22] or 'None'} | Last d10: {player[23] or 'None'}")
+            print(f"  Last d20: {player[24] or 'None'} | Last d100: {player[25] or 'None'}")
+            
+            if stats:
+                print()
+                print("STATS:")
+                print(f"  STR: {stats[2]} | STM: {stats[3]} | SPD: {stats[4]}")
+                print(f"  LUK: {stats[5]} | MNY: {stats[6]}x")
+            else:
+                print("\nSTATS: No stats found")
+                
+    except Exception as e:
+        print(f"Failed to retrieve player details: {e}")
+
+def show_enemy_detail(enemy_id):
+    """Display detailed information for a specific enemy"""
+    try:
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        if not DATABASE_URL:
+            print("Error: DATABASE_URL not found")
+            return
+        engine = create_engine(DATABASE_URL)
+        with engine.connect() as connection:
+            # Get enemy info
+            enemy_result = connection.execute(text("SELECT * FROM enemies WHERE id = :id"), {"id": enemy_id})
+            enemy = enemy_result.fetchone()
+            
+            if not enemy:
+                print(f"Enemy with ID {enemy_id} not found")
+                return
+            
+            # Get enemy stats
+            stats_result = connection.execute(text("SELECT * FROM enemy_stats WHERE enemy_id = :id"), {"id": enemy_id})
+            stats = stats_result.fetchone()
+            
+            print(f"\n⚔️  ENEMY DETAILS - ID: {enemy_id}")
+            print("=" * 60)
+            print(f"Name: {enemy[5]}")
+            print(f"Title: {enemy[6] or 'No Title'}")
+            print(f"Age: {enemy[10] or 'Unknown'} | Gender: {enemy[11]}")
+            print(f"Biology: {enemy[12]} | Main Style: {enemy[13] or 'None'}")
+            print()
+            print("HEALTH:")
+            print(f"  HP: {enemy[1]}/{enemy[2]} | Stamina: {enemy[3]}/{enemy[4]}")
+            print()
+            print("CHARACTER TRAITS:")
+            print(f"  Sin: {enemy[7] or 'None'} | Virtue: {enemy[8] or 'None'}")
+            print(f"  Ritual: {enemy[14]}")
+            print()
+            print("ABILITIES:")
+            print(f"  Skill: {enemy[9] or 'None'}")
+            print()
+            print("DICE ROLLS:")
+            print(f"  Last d5: {enemy[15] or 'None'} | Last d10: {enemy[16] or 'None'}")
+            print(f"  Last d20: {enemy[17] or 'None'} | Last d100: {enemy[18] or 'None'}")
+            
+            if stats:
+                print()
+                print("STATS:")
+                print(f"  STR: {stats[2]} | STM: {stats[3]} | SPD: {stats[4]}")
+                print(f"  LUK: {stats[5]} | MNY: {stats[6]}x")
+            else:
+                print("\nSTATS: No stats found")
+                
+    except Exception as e:
+        print(f"Failed to retrieve enemy details: {e}")
+
+def show_npc_detail(npc_id):
+    """Display detailed information for a specific NPC"""
+    try:
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        if not DATABASE_URL:
+            print("Error: DATABASE_URL not found")
+            return
+        engine = create_engine(DATABASE_URL)
+        with engine.connect() as connection:
+            # Get NPC info
+            npc_result = connection.execute(text("SELECT * FROM npcs WHERE id = :id"), {"id": npc_id})
+            npc = npc_result.fetchone()
+            
+            if not npc:
+                print(f"NPC with ID {npc_id} not found")
+                return
+            
+            # Get NPC stats
+            stats_result = connection.execute(text("SELECT * FROM npc_stats WHERE npc_id = :id"), {"id": npc_id})
+            stats = stats_result.fetchone()
+            
+            print(f"\n👥 NPC DETAILS - ID: {npc_id}")
+            print("=" * 60)
+            print(f"Name: {npc[5]}")
+            print(f"Title: {npc[6] or 'No Title'}")
+            print(f"Age: {npc[10] or 'Unknown'} | Gender: {npc[11]}")
+            print(f"Biology: {npc[12]} | Main Style: {npc[13] or 'None'}")
+            print()
+            print("HEALTH:")
+            print(f"  HP: {npc[1]}/{npc[2]} | Stamina: {npc[3]}/{npc[4]}")
+            print()
+            print("CHARACTER TRAITS:")
+            print(f"  Sin: {npc[7] or 'None'} | Virtue: {npc[8] or 'None'}")
+            print(f"  Ritual: {npc[14]}")
+            print()
+            print("ABILITIES:")
+            print(f"  Skill: {npc[9] or 'None'}")
+            print()
+            print("DICE ROLLS:")
+            print(f"  Last d5: {npc[15] or 'None'} | Last d10: {npc[16] or 'None'}")
+            print(f"  Last d20: {npc[17] or 'None'} | Last d100: {npc[18] or 'None'}")
+            
+            if stats:
+                print()
+                print("STATS:")
+                print(f"  STR: {stats[2]} | STM: {stats[3]} | SPD: {stats[4]}")
+                print(f"  LUK: {stats[5]} | MNY: {stats[6]}x")
+            else:
+                print("\nSTATS: No stats found")
+                
+    except Exception as e:
+        print(f"Failed to retrieve NPC details: {e}")
 
 def show_commands():
     """Show available commands"""
     print("\nAvailable commands:")
-    print("  DataBase  - Full database setup (restart Docker + create tables + seed)")
+    print("  database  - Full database setup (restart Docker + create tables)")
     print("  reset     - Reset Docker containers (keeps existing data)")
     print("  status    - Show current system status")
-    print("  players   - Show all players in database")
-    print("  enemies   - Show all enemies in database") 
-    print("  npcs      - Show all NPCs in database")
+    print("  players   - Show all players (ID and name)")
+    print("  enemies   - Show all enemies (ID and name)")
+    print("  npcs      - Show all NPCs (ID and name)")
+    print("  player X  - Show detailed info for player with ID X")
+    print("  enemy X   - Show detailed info for enemy with ID X")
+    print("  npc X     - Show detailed info for NPC with ID X")
     print("  help      - Show this help message")
     print("  exit/quit/stop/kill/q/adios - Exit the program")
 
@@ -233,6 +393,24 @@ def main():
                 show_enemies()
             elif command.lower() == "npcs":
                 show_npcs()
+            elif command.lower().startswith("player "):
+                try:
+                    player_id = int(command.split()[1])
+                    show_player_detail(player_id)
+                except (IndexError, ValueError):
+                    print("Usage: player <ID>")
+            elif command.lower().startswith("enemy "):
+                try:
+                    enemy_id = int(command.split()[1])
+                    show_enemy_detail(enemy_id)
+                except (IndexError, ValueError):
+                    print("Usage: enemy <ID>")
+            elif command.lower().startswith("npc "):
+                try:
+                    npc_id = int(command.split()[1])
+                    show_npc_detail(npc_id)
+                except (IndexError, ValueError):
+                    print("Usage: npc <ID>")
             elif command.lower() == "help":
                 show_commands()
             elif command.lower() == "okay":
