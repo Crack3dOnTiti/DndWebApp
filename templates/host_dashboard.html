@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Dashboard - D&D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 200px 1fr 300px;
+            grid-template-rows: 100px 100px 1fr;
+            height: 100vh;
+            gap: 1px;
+            background: #333;
+        }
+
+        /* Side Menu */
+        .side-menu {
+            background: #2a2a2a;
+            border-right: 1px solid #444;
+            grid-row: 1 / -1;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            transition: background 0.2s;
+            width: 80%;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .menu-item:hover {
+            background: #333;
+        }
+
+        .menu-item.active {
+            background: #444;
+        }
+
+        /* Chat Input Section */
+        .chat-input-section {
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            margin-right: 10px;
+        }
+
+        .send-btn {
+            padding: 8px 16px;
+            background: #444;
+            border: none;
+            border-radius: 4px;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background: #555;
+        }
+
+        .player-checkboxes {
+            display: flex;
+            gap: 15px;
+            margin-left: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .voice-dropdown {
+            margin-top: 10px;
+        }
+
+        .voice-dropdown select {
+            padding: 6px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+        }
+
+        /* Chat Messages Section */
+        .chat-messages-section {
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #333;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1px;
+            background: #333;
+        }
+
+        .content-section {
+            background: #2a2a2a;
+            padding: 15px;
+        }
+
+        /* Sliders Section (Bottom Left) */
+        .sliders-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .slider-container {
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #555;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #666;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Right Side - Three Sections */
+        .right-side {
+            display: flex;
+            flex-direction: column;
+            background: #2a2a2a;
+            border-left: 1px solid #444;
+            grid-row: 1 / -1;
+        }
+
+        .players-section, .enemies-section, .dice-section {
+            flex: 1;
+            padding: 15px;
+            border-bottom: 1px solid #444;
+            overflow-y: auto;
+        }
+
+        .dice-section {
+            border-bottom: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ccc;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+
+        /* Character Cards */
+        .character-card {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid #444;
+            transition: background 0.2s;
+        }
+
+        .character-card:hover {
+            background: #3a3a3a;
+        }
+
+        .character-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .character-name {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .character-id {
+            font-weight: 600;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .character-stats {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .character-roll {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Dice Section */
+        .dice-dropdown {
+            width: 80%;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .dice-roll-btn {
+            width: 80%;
+            padding: 12px;
+            background: #444;
+            border: none;
+            border-radius: 4px;
+            color: #e0e0e0;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .dice-roll-btn:hover {
+            background: #555;
+        }
+
+        .dice-result {
+            width: 80%;
+            height: 80px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .save-btn {
+            background: #444;
+            color: #e0e0e0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .save-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Side Menu -->
+        <div class="side-menu">
+            <div class="menu-item active" data-section="dash">Dash</div>
+            <div class="menu-item" data-section="create">Create</div>
+        </div>
+
+        <!-- Chat Input Section -->
+        <div class="chat-input-section">
+            <div class="chat-header">
+                <input type="text" class="chat-input" placeholder="Type message..." id="chatInput">
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+            <div class="voice-dropdown">
+                <select id="voiceMode">
+                    <option value="host">Host</option>
+                    <option value="voice">Voice</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Chat Messages Section -->
+        <div class="chat-messages-section" id="chatMessages">
+            <div class="player-checkboxes" id="playerCheckboxes">
+                <!-- Player checkboxes will be populated here -->
+            </div>
+        </div>
+
+        <!-- Main Content (4 sections) -->
+        <div class="main-content">
+            <!-- Bottom Left: Sliders -->
+            <div class="content-section sliders-section">
+                <div class="section-title">Environmental Controls</div>
+                
+                <div class="slider-container">
+                    <label class="slider-label">Saturation</label>
+                    <input type="range" class="slider" id="saturationSlider" min="0" max="4" value="0" oninput="updateSliderValue('saturation', this.value)">
+                    <div class="slider-value" id="saturationValue">Full</div>
+                </div>
+
+                <div class="slider-container">
+                    <label class="slider-label">General Feeling</label>
+                    <input type="range" class="slider" id="feelingSlider" min="0" max="4" value="2" oninput="updateSliderValue('feeling', this.value)">
+                    <div class="slider-value" id="feelingValue">Good</div>
+                </div>
+
+                <div class="slider-container">
+                    <label class="slider-label">Temperature</label>
+                    <input type="range" class="slider" id="temperatureSlider" min="0" max="4" value="2" oninput="updateSliderValue('temperature', this.value)">
+                    <div class="slider-value" id="temperatureValue">Normal</div>
+                </div>
+            </div>
+
+            <!-- Host Dice Section -->
+            <div class="content-section">
+                <div class="section-title">Host Dice</div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                    <select class="dice-dropdown" id="hostDiceType" style="width: 60%; margin-bottom: 15px;">
+                        <option value="5">d5</option>
+                        <option value="10">d10</option>
+                        <option value="20">d20</option>
+                        <option value="100">d100</option>
+                    </select>
+                    <button class="dice-roll-btn" onclick="rollHostDice()" style="width: 60%; margin-bottom: 15px;">Throw</button>
+                    <div class="dice-result" id="hostDiceResult" style="width: 60%; height: 60px;">-</div>
+                </div>
+            </div>
+            <div class="content-section">
+                <div class="section-title">Reserved</div>
+            </div>
+            <div class="content-section">
+                <div class="section-title">Reserved</div>
+            </div>
+        </div>
+
+        <!-- Right Side: Players, Enemies, Dice -->
+        <div class="right-side">
+            <!-- Players Section -->
+            <div class="players-section">
+                <div class="section-title">Players</div>
+                <div id="playersList">
+                    <!-- Player cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Enemies Section -->
+            <div class="enemies-section">
+                <div class="section-title">Enemies</div>
+                <div id="enemiesList">
+                    <!-- Enemy cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Empty Section -->
+            <div class="enemies-section">
+                <div class="section-title">Reserved</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Edit Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Edit Player</div>
+            <form id="playerForm">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="editName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current HP</label>
+                    <input type="number" class="form-input" id="editCurrentHP" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Max HP</label>
+                    <input type="number" class="form-input" id="editMaxHP" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Stamina</label>
+                    <input type="number" class="form-input" id="editCurrentStam" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Max Stamina</label>
+                    <input type="number" class="form-input" id="editMaxStam" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Skill Description</label>
+                    <textarea class="form-textarea" id="editSkillDesc"></textarea>
+                </div>
+                <button type="button" class="save-btn" onclick="savePlayerChanges()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentPlayerId = null;
+        let players = [];
+        let enemies = [];
+
+        // Slider value mappings
+        const sliderValues = {
+            saturation: ['Full', 'Fine', 'Peckish', 'Hungry', 'Starving'],
+            feeling: ['Terrible', 'Bad', 'Good', 'Great', 'Excellent'],
+            temperature: ['Freezing', 'Cold', 'Normal', 'Warm', 'Hot']
+        };
+
+        // Load initial data
+        async function loadPlayers() {
+            try {
+                const response = await fetch('/api/players');
+                players = await response.json();
+                updatePlayersList();
+                updatePlayerCheckboxes();
+            } catch (error) {
+                console.error('Error loading players:', error);
+            }
+        }
+
+        async function loadEnemies() {
+            try {
+                const response = await fetch('/api/enemies');
+                enemies = await response.json();
+                updateEnemiesList();
+            } catch (error) {
+                console.error('Error loading enemies:', error);
+            }
+        }
+
+        function updatePlayersList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+
+            players.forEach(player => {
+                const lastRoll = getLastRollValue(player);
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.onclick = () => openPlayerModal(player);
+                card.innerHTML = `
+                    <div class="character-header">
+                        <span class="character-name">${player.name}</span>
+                        <span class="character-id">ID: ${player.id}</span>
+                    </div>
+                    <div class="character-stats">HP: ${player.current_hp}/${player.max_hp} | Stamina: ${player.current_stam}/${player.max_stam}</div>
+                    <div class="character-roll">Last Roll: ${lastRoll}</div>
+                `;
+                playersList.appendChild(card);
+            });
+        }
+
+        function updateEnemiesList() {
+            const enemiesList = document.getElementById('enemiesList');
+            enemiesList.innerHTML = '';
+
+            enemies.forEach(enemy => {
+                const lastRoll = getLastRollValue(enemy);
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.onclick = () => openEnemyModal(enemy);
+                card.innerHTML = `
+                    <div class="character-header">
+                        <span class="character-name">${enemy.name}</span>
+                        <span class="character-id">ID: ${enemy.id}</span>
+                    </div>
+                    <div class="character-stats">HP: ${enemy.current_hp}/${enemy.max_hp} | Stamina: ${enemy.current_stam}/${enemy.max_stam}</div>
+                    <div class="character-roll">Last Roll: ${lastRoll}</div>
+                `;
+                enemiesList.appendChild(card);
+            });
+        }
+
+        function updatePlayerCheckboxes() {
+            const container = document.getElementById('playerCheckboxes');
+            container.innerHTML = '';
+
+            players.forEach(player => {
+                const checkboxItem = document.createElement('div');
+                checkboxItem.className = 'checkbox-item';
+                checkboxItem.innerHTML = `
+                    <input type="checkbox" id="player-${player.id}" value="${player.id}">
+                    <label for="player-${player.id}">${player.name}</label>
+                `;
+                container.appendChild(checkboxItem);
+            });
+        }
+
+        function getLastRollValue(character) {
+            const rolls = [
+                character.last_d5_roll,
+                character.last_d10_roll,
+                character.last_d20_roll,
+                character.last_d100_roll
+            ].filter(roll => roll !== null);
+
+            return rolls.length > 0 ? rolls[rolls.length - 1] : 'None';
+        }
+
+        function openPlayerModal(player) {
+            currentPlayerId = player.id;
+            document.getElementById('modalTitle').textContent = `Edit ${player.name}`;
+            document.getElementById('editName').value = player.name;
+            document.getElementById('editCurrentHP').value = player.current_hp;
+            document.getElementById('editMaxHP').value = player.max_hp;
+            document.getElementById('editCurrentStam').value = player.current_stam;
+            document.getElementById('editMaxStam').value = player.max_stam;
+            document.getElementById('editSkillDesc').value = player.skill_description || '';
+            
+            document.getElementById('playerModal').style.display = 'block';
+        }
+
+        function openEnemyModal(enemy) {
+            // TODO: Implement enemy editing modal
+            console.log('Edit enemy:', enemy);
+        }
+
+        async function savePlayerChanges() {
+            const data = {
+                name: document.getElementById('editName').value,
+                current_hp: parseFloat(document.getElementById('editCurrentHP').value),
+                max_hp: parseFloat(document.getElementById('editMaxHP').value),
+                current_stam: parseFloat(document.getElementById('editCurrentStam').value),
+                max_stam: parseFloat(document.getElementById('editMaxStam').value),
+                skill_description: document.getElementById('editSkillDesc').value
+            };
+
+            try {
+                const response = await fetch(`/api/players/${currentPlayerId}/host-update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    document.getElementById('playerModal').style.display = 'none';
+                    loadPlayers(); // Refresh the list
+                }
+            } catch (error) {
+                console.error('Error saving player:', error);
+            }
+        }
+
+        function updateSliderValue(type, value) {
+            const displayValue = sliderValues[type][value];
+            document.getElementById(`${type}Value`).textContent = displayValue;
+        }
+
+        async function rollHostDice() {
+            const diceType = document.getElementById('hostDiceType').value;
+            const result = Math.floor(Math.random() * parseInt(diceType)) + 1;
+            document.getElementById('hostDiceResult').textContent = result;
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('chatInput').value;
+            const selectedPlayers = Array.from(document.querySelectorAll('#playerCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (message && selectedPlayers.length > 0) {
+                // TODO: Implement message sending via WebSocket
+                console.log('Sending message:', message, 'to players:', selectedPlayers);
+                document.getElementById('chatInput').value = '';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('playerModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Load data on page load
+        loadPlayers();
+        loadEnemies();
+    </script>
+</body>
+</html>

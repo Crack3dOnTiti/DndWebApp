@@ -232,10 +232,22 @@
             const formData = new FormData(e.target);
             const hostName = formData.get('hostName');
             const hostPassword = formData.get('hostPassword');
-            
-            // TODO: Implement host authentication
-            console.log('Host login:', { hostName, hostPassword });
-            showError('hostError', 'Host authentication not implemented yet');
+
+            try {
+                const response = await fetch('/host-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: hostName, password: hostPassword })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/host-dashboard';
+                } else {
+                    showError('hostError', 'Invalid credentials');
+                }
+            } catch (error) {
+                showError('hostError', 'Connection error');
+            }
         });
 
         // Create new player button  
