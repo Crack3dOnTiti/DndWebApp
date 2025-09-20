@@ -1,0 +1,19 @@
+# Keep these from your original
+SQLAlchemy
+psycopg2-binary
+python-dotenv
+flask
+flask-cors
+
+# Add for real-time D&D features
+flask-socketio
+
+# Remove these (not needed for D&D app)
+# fastapi
+# uvicorn[standard]
+# pydantic
+# python-jose[cryptography]
+# passlib[bcrypt]
+# requests
+# pydantic_settings
+termcolor
