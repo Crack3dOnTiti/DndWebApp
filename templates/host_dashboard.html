@@ -21,8 +21,8 @@
 
         .container {
             display: grid;
-            grid-template-columns: 200px 1fr 300px;
-            grid-template-rows: 100px 100px 1fr;
+            grid-template-columns: 200px 1fr 320px;
+            grid-template-rows: 90px 90px 1fr;
             height: 100vh;
             gap: 1px;
             background: #333;
@@ -96,9 +96,10 @@
         }
 
         .player-checkboxes {
-            display: flex;
-            gap: 15px;
-            margin-left: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px;
         }
 
         .checkbox-item {
@@ -147,6 +148,13 @@
         .content-section {
             background: #2a2a2a;
             padding: 15px;
+        }
+
+        .dice-merged-section {
+            background: #2a2a2a;
+            padding: 15px;
+            grid-column: 1 / 3;
+            grid-row: 2;
         }
 
         /* Sliders Section (Bottom Left) */
@@ -391,18 +399,9 @@
             <div class="menu-item" data-section="create">Create</div>
         </div>
 
-        <!-- Chat Input Section -->
+        <!-- Top Right Section -->
         <div class="chat-input-section">
-            <div class="chat-header">
-                <input type="text" class="chat-input" placeholder="Type message..." id="chatInput">
-                <button class="send-btn" onclick="sendMessage()">Send</button>
-            </div>
-            <div class="voice-dropdown">
-                <select id="voiceMode">
-                    <option value="host">Host</option>
-                    <option value="voice">Voice</option>
-                </select>
-            </div>
+            <!-- topright -->
         </div>
 
         <!-- Chat Messages Section -->
@@ -437,25 +436,27 @@
                 </div>
             </div>
 
-            <!-- Host Dice Section -->
+            <!-- Reserved Section 1 - Combat Manager -->
             <div class="content-section">
-                <div class="section-title">Host Dice</div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                    <select class="dice-dropdown" id="hostDiceType" style="width: 60%; margin-bottom: 15px;">
-                        <option value="5">d5</option>
-                        <option value="10">d10</option>
-                        <option value="20">d20</option>
-                        <option value="100">d100</option>
-                    </select>
-                    <button class="dice-roll-btn" onclick="rollHostDice()" style="width: 60%; margin-bottom: 15px;">Throw</button>
-                    <div class="dice-result" id="hostDiceResult" style="width: 60%; height: 60px;">-</div>
+                <div class="section-title">Combat Manager</div>
+                <div style="display: flex; justify-content: center; align-items: center; height: 80%;">
+                    <button class="save-btn" onclick="openCombatManager()" style="padding: 20px 40px; font-size: 1.1rem;">Combat Manager</button>
                 </div>
             </div>
-            <div class="content-section">
-                <div class="section-title">Reserved</div>
-            </div>
-            <div class="content-section">
-                <div class="section-title">Reserved</div>
+            <!-- Reserved Section 2 & 3 - Host Dice (Merged) -->
+            <div class="dice-merged-section" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="section-title">Host Dice</div>
+                
+                <select id="hostDiceType" style="width: 200px; padding: 12px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #e0e0e0; margin-bottom: 20px; font-size: 1rem;">
+                    <option value="5">D5</option>
+                    <option value="10">D10</option>
+                    <option value="20" selected>D20</option>
+                    <option value="100">D100</option>
+                </select>
+                
+                <button onclick="rollHostDice()" style="width: 200px; padding: 15px; background: #444; border: none; border-radius: 4px; color: #e0e0e0; cursor: pointer; margin-bottom: 20px; font-size: 1.1rem;">Roll Dice</button>
+                
+                <div id="hostDiceResult" style="width: 200px; height: 120px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700;">-</div>
             </div>
         </div>
 
@@ -477,9 +478,73 @@
                 </div>
             </div>
 
-            <!-- Empty Section -->
+            <!-- Messaging Section -->
             <div class="enemies-section">
-                <div class="section-title">Reserved</div>
+                <div class="section-title">Messages</div>
+                
+                <!-- Message display area -->
+                <div style="background: #333; border-radius: 4px; height: 60%; margin-bottom: 10px; padding: 10px; overflow-y: auto; border: 1px solid #444;" id="messageDisplay">
+                    <div style="font-size: 0.8rem; color: #999; font-style: italic;">Messages will appear here...</div>
+                </div>
+                
+                <!-- Message input area -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" placeholder="Type message..." id="chatInputBottom" style="flex: 1; padding: 6px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #e0e0e0; font-size: 0.9rem;">
+                        <button onclick="sendMessage()" style="padding: 6px 12px; background: #444; border: none; border-radius: 4px; color: #e0e0e0; cursor: pointer; font-size: 0.9rem;">Send</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="voiceModeBottom" style="padding: 4px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #e0e0e0; font-size: 0.8rem;">
+                            <option value="host">Host</option>
+                            <option value="voice">Voice</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Combat Manager Modal -->
+    <div id="combatModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; height: 80vh;">
+            <div class="modal-header">
+                <span style="float: left;">Combat Manager</span>
+                <span style="float: right; cursor: pointer; font-size: 1.5rem;" onclick="closeCombatManager()">&times;</span>
+                <div style="clear: both;"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 300px; height: calc(100% - 60px); gap: 15px;">
+                <!-- Players Section -->
+                <div style="display: flex; flex-direction: column;">
+                    <h3 style="color: #ccc; margin-bottom: 10px; text-align: center;">Players</h3>
+                    <div id="combatPlayersList" style="flex: 1; overflow-y: auto; background: #333; border-radius: 4px; padding: 10px;">
+                        <!-- Combat player cards will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Enemies Section -->
+                <div style="display: flex; flex-direction: column;">
+                    <h3 style="color: #ccc; margin-bottom: 10px; text-align: center;">Enemies</h3>
+                    <div id="combatEnemiesList" style="flex: 1; overflow-y: auto; background: #333; border-radius: 4px; padding: 10px;">
+                        <!-- Combat enemy cards will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Dice Section -->
+                <div style="display: flex; flex-direction: column; align-items: center; background: #333; border-radius: 4px; padding: 20px;">
+                    <h3 style="color: #ccc; margin-bottom: 20px;">Combat Dice</h3>
+                    
+                    <select id="combatDiceType" style="width: 80%; padding: 8px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #e0e0e0; margin-bottom: 15px;">
+                        <option value="5">D5</option>
+                        <option value="10">D10</option>
+                        <option value="20" selected>D20</option>
+                        <option value="100">D100</option>
+                    </select>
+                    
+                    <button onclick="rollCombatDice()" style="width: 80%; padding: 12px; background: #444; border: none; border-radius: 4px; color: #e0e0e0; cursor: pointer; margin-bottom: 15px;">Roll Dice</button>
+                    
+                    <div id="combatDiceResult" style="width: 80%; height: 80px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700;">-</div>
+                </div>
             </div>
         </div>
     </div>
@@ -664,34 +729,195 @@
             }
         }
 
+        function openCombatManager() {
+            document.getElementById('combatModal').style.display = 'block';
+            updateCombatLists();
+        }
+
+        function closeCombatManager() {
+            document.getElementById('combatModal').style.display = 'none';
+        }
+
+        function updateCombatLists() {
+            updateCombatPlayersList();
+            updateCombatEnemiesList();
+        }
+
+        function updateCombatPlayersList() {
+            const combatPlayersList = document.getElementById('combatPlayersList');
+            combatPlayersList.innerHTML = '';
+
+            players.forEach(player => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: #2a2a2a;
+                    padding: 12px;
+                    margin-bottom: 10px;
+                    border-radius: 6px;
+                    border: 1px solid #444;
+                `;
+                card.innerHTML = `
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #e0e0e0;">
+                        ${player.name} <span style="color: #aaa; font-size: 0.9rem;">ID: ${player.id}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 3px;">
+                            HP: <span id="combatPlayerHP-${player.id}">${player.current_hp}</span>/${player.max_hp}
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="${player.max_hp}" 
+                               value="${player.current_hp}" 
+                               style="width: 100%; height: 4px; background: #555; border-radius: 2px;"
+                               oninput="updateCombatPlayerHP(${player.id}, this.value)">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 3px;">
+                            Stamina: <span id="combatPlayerStam-${player.id}">${player.current_stam}</span>/${player.max_stam}
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="${player.max_stam}" 
+                               value="${player.current_stam}" 
+                               style="width: 100%; height: 4px; background: #555; border-radius: 2px;"
+                               oninput="updateCombatPlayerStam(${player.id}, this.value)">
+                    </div>
+                `;
+                combatPlayersList.appendChild(card);
+            });
+        }
+
+        function updateCombatEnemiesList() {
+            const combatEnemiesList = document.getElementById('combatEnemiesList');
+            combatEnemiesList.innerHTML = '';
+
+            enemies.forEach(enemy => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: #2a2a2a;
+                    padding: 12px;
+                    margin-bottom: 10px;
+                    border-radius: 6px;
+                    border: 1px solid #444;
+                `;
+                card.innerHTML = `
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #e0e0e0;">
+                        ${enemy.name} <span style="color: #aaa; font-size: 0.9rem;">ID: ${enemy.id}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 3px;">
+                            HP: <span id="combatEnemyHP-${enemy.id}">${enemy.current_hp}</span>/${enemy.max_hp}
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="${enemy.max_hp}" 
+                               value="${enemy.current_hp}" 
+                               style="width: 100%; height: 4px; background: #555; border-radius: 2px;"
+                               oninput="updateCombatEnemyHP(${enemy.id}, this.value)">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 3px;">
+                            Stamina: <span id="combatEnemyStam-${enemy.id}">${enemy.current_stam}</span>/${enemy.max_stam}
+                        </label>
+                        <input type="range" 
+                               min="0" 
+                               max="${enemy.max_stam}" 
+                               value="${enemy.current_stam}" 
+                               style="width: 100%; height: 4px; background: #555; border-radius: 2px;"
+                               oninput="updateCombatEnemyStam(${enemy.id}, this.value)">
+                    </div>
+                `;
+                combatEnemiesList.appendChild(card);
+            });
+        }
+
+        function updateCombatPlayerHP(playerId, value) {
+            document.getElementById(`combatPlayerHP-${playerId}`).textContent = value;
+            // TODO: Update player HP in backend
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                player.current_hp = parseFloat(value);
+            }
+        }
+
+        function updateCombatPlayerStam(playerId, value) {
+            document.getElementById(`combatPlayerStam-${playerId}`).textContent = value;
+            // TODO: Update player stamina in backend
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                player.current_stam = parseFloat(value);
+            }
+        }
+
+        function updateCombatEnemyHP(enemyId, value) {
+            document.getElementById(`combatEnemyHP-${enemyId}`).textContent = value;
+            // TODO: Update enemy HP in backend
+            const enemy = enemies.find(e => e.id === enemyId);
+            if (enemy) {
+                enemy.current_hp = parseFloat(value);
+            }
+        }
+
+        function updateCombatEnemyStam(enemyId, value) {
+            document.getElementById(`combatEnemyStam-${enemyId}`).textContent = value;
+            // TODO: Update enemy stamina in backend
+            const enemy = enemies.find(e => e.id === enemyId);
+            if (enemy) {
+                enemy.current_stam = parseFloat(value);
+            }
+        }
+
+        function rollCombatDice() {
+            const diceType = parseInt(document.getElementById('combatDiceType').value);
+            const result = Math.floor(Math.random() * diceType) + 1;
+            document.getElementById('combatDiceResult').textContent = result;
+        }
+
         function updateSliderValue(type, value) {
             const displayValue = sliderValues[type][value];
             document.getElementById(`${type}Value`).textContent = displayValue;
         }
 
-        async function rollHostDice() {
-            const diceType = document.getElementById('hostDiceType').value;
-            const result = Math.floor(Math.random() * parseInt(diceType)) + 1;
+        function rollHostDice() {
+            const diceType = parseInt(document.getElementById('hostDiceType').value);
+            const result = Math.floor(Math.random() * diceType) + 1;
             document.getElementById('hostDiceResult').textContent = result;
         }
 
         function sendMessage() {
-            const message = document.getElementById('chatInput').value;
+            const message = document.getElementById('chatInputBottom').value;
             const selectedPlayers = Array.from(document.querySelectorAll('#playerCheckboxes input:checked'))
                 .map(cb => cb.value);
             
             if (message && selectedPlayers.length > 0) {
                 // TODO: Implement message sending via WebSocket
                 console.log('Sending message:', message, 'to players:', selectedPlayers);
-                document.getElementById('chatInput').value = '';
+                
+                // Add message to display
+                const messageDisplay = document.getElementById('messageDisplay');
+                const messageDiv = document.createElement('div');
+                messageDiv.style.marginBottom = '5px';
+                messageDiv.style.fontSize = '0.8rem';
+                messageDiv.innerHTML = `<strong>Host:</strong> ${message}`;
+                messageDisplay.appendChild(messageDiv);
+                messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                
+                document.getElementById('chatInputBottom').value = '';
             }
         }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('playerModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+            const playerModal = document.getElementById('playerModal');
+            const combatModal = document.getElementById('combatModal');
+            if (event.target == playerModal) {
+                playerModal.style.display = 'none';
+            } else if (event.target == combatModal) {
+                combatModal.style.display = 'none';
             }
         }
 
